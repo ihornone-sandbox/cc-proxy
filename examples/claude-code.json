@@ -1,0 +1,5 @@
+{
+  "provider": "cmdcode",
+  "model": "deepseek/deepseek-v4-flash",
+  "apiBaseUrl": "http://127.0.0.1:55990/v1"
+}
