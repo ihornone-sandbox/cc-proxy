@@ -6,14 +6,13 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const pkg = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.json'), 'utf-8'));
 
 export const VERSION = pkg.version;
-export const USER_AGENT = `cc-proxy/${VERSION}`;
 
 export const DEFAULTS = {
   host: '127.0.0.1',
   port: 55990,
-  ccVersion: '0.33.1',
+  ccVersion: '0.35.0',
   ccApiBase: 'https://api.commandcode.ai',
-  maxTokens: 65536,
+  maxTokens: 64000,
 };
 
 export function parseArgs(argv) {

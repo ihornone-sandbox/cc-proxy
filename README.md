@@ -20,36 +20,29 @@ This proxy bridges the gap. It uses the **same internal API** as the `cmd` CLI, 
 ### 1. Install
 
 ```bash
-# Option A — git clone (requires Node.js 18+)
 git clone https://github.com/ihornone-sandbox/cc-proxy
 cd cc-proxy
 npm install
-
-# Option B — one-liner (Linux/macOS)
-curl -fsSL https://raw.githubusercontent.com/ihornone-sandbox/cc-proxy/main/install.sh | bash
 ```
+
+Requires Node.js 18+.
 
 ### 2. Authenticate
 
 ```bash
-# Make sure you're logged into Command Code
 cmd login
 ```
 
-The proxy automatically picks up your API key from `~/.commandcode/auth.json`.
+The proxy picks up your key from `~/.commandcode/auth.json`.
 
-### 3. Start the proxy
+### 3. Start
 
 ```bash
-# if you cloned the repo
 node index.js
-
-# if you used the install script
-cc-proxy
 ```
 
 ```
-cc-proxy v1.0.0
+cc-proxy v1.2.0
 Starting proxy on http://127.0.0.1:55990
 Models: GET  http://127.0.0.1:55990/v1/models
 Chat:   POST http://127.0.0.1:55990/v1/chat/completions
@@ -60,7 +53,7 @@ Proxy is ready. Press Ctrl+C to stop.
 
 #### OpenCode
 
-Add to `~/.config/opencode/opencode.jsonc` or your project's `opencode.json`:
+In your `opencode.json`:
 
 ```json
 {
@@ -79,6 +72,10 @@ Add to `~/.config/opencode/opencode.jsonc` or your project's `opencode.json`:
         },
         "deepseek/deepseek-v4-pro": {
           "name": "DeepSeek V4 Pro",
+          "limit": { "context": 1000000, "output": 65536 }
+        },
+        "MiniMaxAI/MiniMax-M3": {
+          "name": "MiniMax M3",
           "limit": { "context": 1000000, "output": 65536 }
         }
       }
@@ -99,13 +96,6 @@ Add to `~/.config/opencode/opencode.jsonc` or your project's `opencode.json`:
 }
 ```
 
-#### Claude Code
-
-```bash
-export CLAUDE_CODE_BASE_URL=http://127.0.0.1:55990/v1
-claude
-```
-
 #### curl
 
 ```bash
@@ -113,91 +103,29 @@ curl -s http://127.0.0.1:55990/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "model": "deepseek/deepseek-v4-flash",
-    "messages": [{"role": "user", "content": "Write a haiku about coding"}],
+    "messages": [{"role": "user", "content": "Write a haiku"}],
     "stream": true
   }'
 ```
 
-## Features
-
-- **OpenAI-compatible** — drop-in replacement for any OpenAI client
-- **Streaming** — full SSE support (`stream: true`)
-- **Non-streaming** — regular JSON responses (`stream: false`)
-- **Tools / Function calling** — convert between OpenAI and Command Code formats
-- **System messages** — extracted and forwarded correctly
-- **Multi-turn conversations** — full history support
-- **Open-weight models** — DeepSeek, Qwen, MiniMax, MiMo, Kimi, GLM, Step, Nemotron
-- **Model list** — `GET /v1/models` returns all available models
-- **Auto-auth** — reads key from `~/.commandcode/auth.json`, env var, or CLI flag
-- **Cross-platform** — Linux, macOS, Windows
-
-## Available Models
-
-```bash
-curl http://127.0.0.1:55990/v1/models | jq '.data[].id'
-```
-
-| Model ID | Description |
-|---|---|
-| `deepseek/deepseek-v4-pro` | DeepSeek V4 Pro (1M context) |
-| `deepseek/deepseek-v4-flash` | DeepSeek V4 Flash (1M context) |
-| `Qwen/Qwen3.7-Max` | Qwen 3.7 Max (1M context) |
-| `MiniMaxAI/MiniMax-M3` | MiniMax M3 (1M context) |
-| `xiaomi/mimo-v2.5-pro` | MiMo V2.5 Pro (1M context) |
-| `moonshotai/Kimi-K2.6` | Kimi K2.6 (256K context) |
-| `zai-org/GLM-5.1` | GLM-5.1 (200K context) |
-| `stepfun/Step-3.7-Flash` | Step 3.7 Flash (256K context) |
-
 ## Configuration
-
-### CLI flags
 
 | Flag | Default | Description |
 |---|---|---|
-| `--port, -p` | `55990` | Server port (env: `PORT`) |
-| `--host, -h` | `127.0.0.1` | Bind address (env: `HOST`) |
-| `--api-key, -k` | — | API key (env: `COMMANDCODE_API_KEY`) |
+| `--port, -p` | `55990` | Server port |
+| `--host, -h` | `127.0.0.1` | Bind address |
+| `--api-key, -k` | — | API key |
 | `--version, -v` | — | Show version |
 | `--help` | — | Show help |
 
-### API key priority
-
-1. `--api-key` CLI flag
-2. `COMMANDCODE_API_KEY` environment variable
-3. `~/.commandcode/auth.json` (created by `cmd login`)
-4. `~/.config/commandcode/auth.json`
-
-## How credits are used
-
-The proxy uses the **same credits** as the `cmd` CLI. Each request consumes from your Command Code plan balance. You can check your usage with:
-
-```bash
-cmd status
-```
+**Env vars:** `PORT`, `HOST`, `COMMANDCODE_API_KEY`, `MAX_BODY_SIZE` (default `50mb`).
 
 ## Requirements
 
-- **Node.js 18+** — for native `fetch` and ES modules
-- **Command Code CLI** — `npm install -g command-code` + `cmd login`
-- **Active Command Code plan** — the $1 starter plan works
-
-## FAQ
-
-**Q: Is this against Command Code's terms?**
-A: You're using your own paid subscription through the same API as the official CLI. This is a local proxy that translates API formats — it doesn't bypass authentication or steal service.
-
-**Q: Will this work with the free plan?**
-A: No. The internal API requires an authenticated session with credits.
-
-**Q: How do I get an API key?**
-A: Run `cmd login` in your terminal. The key is stored in `~/.commandcode/auth.json` automatically.
-
-**Q: Can I expose it to my LAN?**
-A: Yes: `node index.js --host 0.0.0.0` (or `cc-proxy --host 0.0.0.0` if installed via script). Be careful — anyone on your network can use your credits.
-
-**Q: Why not just use the official Provider API?**
-A: The official Provider API requires a Pro plan ($19+/month). This proxy works with the $1 starter plan.
+- Node.js 18+
+- Command Code CLI (`npm install -g command-code`) + `cmd login`
+- Active Command Code plan ($1 starter works)
 
 ## License
 
-MIT © [Ihor Pelykh](https://github.com/IhorFlowZenith)
+MIT

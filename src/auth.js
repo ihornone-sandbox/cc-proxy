@@ -13,8 +13,12 @@ export function loadApiKey(cliKey) {
   for (const p of AUTH_FILE_PATHS) {
     try {
       if (existsSync(p)) {
-        const data = JSON.parse(readFileSync(p, 'utf-8'));
-        return data.apiKey || data.key || null;
+        const raw = readFileSync(p, 'utf-8').trim();
+        if (raw.startsWith('{')) {
+          const data = JSON.parse(raw);
+          return data.apiKey || data.key || null;
+        }
+        return raw || null;
       }
     } catch {}
   }

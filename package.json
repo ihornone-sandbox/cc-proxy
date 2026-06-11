@@ -1,6 +1,6 @@
 {
   "name": "cc-proxy",
-  "version": "1.0.0",
+  "version": "1.4.0",
   "description": "OpenAI-compatible proxy for Command Code API — use your $1 Command Code plan with OpenCode, Cline, Continue, or any OpenAI-compatible client",
   "type": "module",
   "bin": {

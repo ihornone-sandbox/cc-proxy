@@ -69,18 +69,3 @@ export function convertToolChoice(tc) {
   }
   return tc;
 }
-
-export function buildCCConfig(dir) {
-  const now = new Date();
-  return {
-    workingDir: dir || process.cwd(),
-    date: now.toISOString().slice(0, 10),
-    environment: 'terminal',
-    structure: [],
-    isGitRepo: false,
-    currentBranch: '',
-    mainBranch: '',
-    gitStatus: '',
-    recentCommits: [],
-  };
-}
